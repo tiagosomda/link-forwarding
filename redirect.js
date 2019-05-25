@@ -1,10 +1,5 @@
 function getForwardKey() {
-    var search = location.search;
-    if(search && search.startsWith("?")) {
-        return search.substring(1)
-    }
-
-    return false;
+    return location.hash ? location.hash.substring(1) : false;
 }
 
 function forwardUrl(key) {
@@ -21,4 +16,5 @@ var key = getForwardKey();
 if(key === false || forwardUrl(key) === false)
 {
     console.log("no forward found for ["+key+"]")
+    location.href = "/404.html"
 }
