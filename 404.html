@@ -6,6 +6,7 @@
     <!-- Replace with your own title -->
     <title>link forwarding</title>
     <link rel="stylesheet" type="text/css" href="404.css">
+    <link rel="stylesheet" type="text/css" href="404-input.css">
     <script src="404.js" type="text/javascript"></script>
 </head>
 
@@ -13,21 +14,19 @@
     <div class="overlay"></div>
     <div class="terminal">
         <h1>Error <span class="errorcode">404</span></h1>
-        <p class="output">The short link <span id="shortlink"><a href="#1">#tiago</a></span> was not found.</p>
+        <p class="output">The short link <a id="short-link-not-found" href="#1"></a> was not found.</p>
         <p class="output">Did you spell it correctly? </p>
-        <div>
-            Want to create a link? click here
+        <p class="output">Want to create a short link?</p>
+        <p id="create-link-question">$ <a id="yes" href="#yes">YES</a> | <a href="#no">NO</a></p>
+
+        <div id="create-short-link" style="display: none">
+            <p class="output"><a href="#yes">YES</a></p>
+            <p>
+                <span id="origin-url"></span>#<input id="new-hash" class="input input-resize output" type="text" value="" placeholder="your-short-link" /> --> <input id="new-link" class="input input-resize output"  type="text" value="" placeholder="Enter link here" />
+            </p>
+            <p><a id="create-link" href="#create">create</a></p>
         </div>
-        <br/>
-        <div>
-            Url: <input type="text" />
-        </div>
-        <div>
-            short-link#: <input type="text" />
-        </div>
-        <div>
-            <button>CREATE</button>
-        </div>
+
     </div>
 </body>
 

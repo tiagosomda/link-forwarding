@@ -16,5 +16,5 @@ var key = getForwardKey();
 if(key === false || forwardUrl(key) === false)
 {
     console.log("no forward found for ["+key+"]")
-    location.href = "/404.html"
+    location.href = "/404.html#"+key
 }
