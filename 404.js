@@ -62,10 +62,8 @@ function createShortlinkPrompt() {
     answer.classList.add('answer');
     answer.classList.add('input-choice');
     document.getElementById("not-found-msg").append(answer);
-    console.log("creating shortlink prompt");
 
     // creating prompt
-    //shortlink-input-url-msg
     var msgs = ['please set the values:']
     var prompt = createEvent('shortlink-input-url-msg', msgs, showCreateShortlinkPrompt);
 
@@ -96,17 +94,52 @@ function createShortlink() {
     answer.classList.add('answer');
     answer.classList.add('input-choice');
     document.getElementById("shortlink-input-fields").append(answer);
-
     document.getElementById('create-button').style.display = 'none';
+
+    var msgs = ['checking authentication...'];
+    var prompt = createEvent('creating-link-msg', msgs, authenticatePrompt);
+    type(prompt);
+}
+
+function authenticatePrompt() {
+    login(loginCallback);
+}
+
+function loginCallback() {
+    
+    var msgs = ['authenticated...', 'saving to database...'];
+    var prompt = createEvent('creating-link-msg', msgs, save);
+    type(prompt);
+}
+
+function save() {
+    document.getElementById('404').style.display = '';
+    document.getElementById('login').style.display = 'none';
+
     var shortlink = document.getElementById('shortlink');
     var destinationUrl = document.getElementById('destination-url');
-    var msgs = [`creating shortlink [${shortlink.value}] --> [${destinationUrl.value}] `];
-    var prompt = createEvent('creating-link-msg', msgs, undefined);
-    type(prompt);
 
-    login(savingPrompt);
-    document.getElementById('404').style.display = 'none';
-    document.getElementById('login').style.display = '';
+    saveShortlink(shortlink.value, destinationUrl.value, onSaved);
+}
+
+function onSaved(sucess, error) {
+    var msgs = []
+    var prompt = {}
+    var shortlink = document.getElementById('shortlink');
+    var destinationUrl = document.getElementById('destination-url');
+
+    if(sucess) {
+        msgs = ['saved!','you may now navigate to:', `${location.origin}/#${shortlink.value}`];
+    }
+    else {
+
+        msgs = ['err...','something went wrong....', 'see developer console...'];
+        console.log(`Failed to save shortlink [${shortlink.value}] --> [${destinationUrl.value}] to database`);
+        console.log(error);
+    }
+
+    prompt = createEvent('goodbye-msg', msgs, undefined);
+    type(prompt);
 }
 
 function createGoodByePrompt() {
@@ -116,20 +149,6 @@ function createGoodByePrompt() {
     type(goodByePrompt);
 }
 
-function savingPrompt() {
-    
-    var msgs = ['processing...'];
-    var prompt = createEvent('creating-link-msg', msgs, undefined);
-    type(prompt);
-
-    document.getElementById('404').style.display = '';
-    document.getElementById('login').style.display = 'none';
-
-    var shortlink = document.getElementById('shortlink');
-    var destinationUrl = document.getElementById('destination-url');
-
-    saveShortlink(shortlink.value, destinationUrl.value);
-}
 function createEvent(appendToContainer, msgs, endAction) {
     return {
         container: appendToContainer,
@@ -239,11 +258,7 @@ function type(typeEvent) {
 }
 
 window.onload = function () {
-    console.log("what...")
     if (hash) {
-        console.log("hash-start")
         start();
-    } else {
-        console.log('saving to console: ' + search);
     }
 }

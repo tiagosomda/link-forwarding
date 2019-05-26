@@ -14,35 +14,52 @@ function init() {
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
 
-    var test = firebase.auth()
-
-    var user = firebase.auth().currentUser;
-    if(user){
-        console.log('user is signed in')
-    }
-    else {
-        console.log('user is not signed in')
-    }
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          // User is signed in.
+          console.log('user is signed in');
+        } else {
+          // No user is signed in.
+          console.log('user is NOT signed in');
+        }
+      });
 
     // Initialize the FirebaseUI Widget using Firebase.
     //firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)l
     ui = new firebaseui.auth.AuthUI(firebase.auth());
 }
 
+
 function login(successCallback) {
-    var uiConfig = getSignInConfig(successCallback);
-    ui.start('#firebaseui-auth-container', uiConfig);
+    var user = firebase.auth().currentUser;
+
+    if(user)
+    {
+        successCallback();
+    }
+    else 
+    {
+        document.getElementById('404').style.display = 'none';
+        document.getElementById('login').style.display = '';
+        
+        var uiConfig = getSignInConfig(successCallback);
+        ui.start('#firebaseui-auth-container', uiConfig);
+    }
 }
 
-function saveShortlink(shortlink, url) {
+function saveShortlink(shortlink, url, onCompleted) {
     //var database = firebase.database();
 
     firebase.database().ref(shortlink+'/').set({
         hash: shortlink,
         redirectTo: url
+      }).then(function() {
+        onCompleted(true);
+      })
+      .catch(function(error) {
+          console.log('Synchronization failed');
+          onCompleted(false, error)
       });
-
-    console.log('actually saved to the database?')
 }
 
 function getHash(shortlink, callback) {
