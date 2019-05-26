@@ -1,7 +1,19 @@
-console.log("not-found");
 var hash = '';
-if (location.hash) {
+var search = ''
+if (location.search) {
+    search = location.search;
+} else if (location.hash) {
     var hash = location.hash.substring(1);
+}
+
+function start() {
+    var msgs = ['404 Error : Not Found', 'shortlink: ', `[#${hash}]`, 'Create it?'];
+    var prompt = createEvent('not-found-msg', msgs, showCreatePrompt);
+    type(prompt);
+}
+
+function saveOnBackend() {
+    console.log('it has been saved to the backend!');
 }
 
 function resizable(el, factor) {
@@ -35,36 +47,6 @@ function cleanShortUrlHash(el) {
     }
 }
 
-
-window.onload = function () {
-    document.getElementById('short-link-not-found').text = "#"+hash;
-    var originUrl = document.getElementById('origin-url')
-    originUrl.textContent = location.origin;
-    var newLink = document.getElementById('new-link');
-    var newHash = document.getElementById('new-hash');
-
-    newHash.value = hash;
-
-    resizable(newHash, 12);
-    resizable(newLink, 12);
-
-    document.getElementById('yes').addEventListener('click', displayCreateLink);
-
-    attachInputChange(newHash, cleanShortUrlHash);
-}
-
-
-
-window.onload = function () {
-    start();
-}
-
-function start() {
-    var msgs = ['404 Error : Not Found', 'shortlink: ', `[#${hash}]`, 'Create it?'];
-    var prompt = createEvent('not-found-msg', msgs, showCreatePrompt);
-    type(prompt);
-}
-
 function showCreatePrompt() {
     document.getElementById('create-yes').addEventListener('click', createShortlinkPrompt);
     document.getElementById('create-no').addEventListener('click', createGoodByePrompt);
@@ -72,7 +54,7 @@ function showCreatePrompt() {
 }
 
 function createShortlinkPrompt() {
-    
+
     // writing 'yes' answer
     document.getElementById("create-shortlink-question").remove();
     var answer = document.createElement('p');
@@ -80,10 +62,8 @@ function createShortlinkPrompt() {
     answer.classList.add('answer');
     answer.classList.add('input-choice');
     document.getElementById("not-found-msg").append(answer);
-    console.log("creating shortlink prompt");
 
     // creating prompt
-    //shortlink-input-url-msg
     var msgs = ['please set the values:']
     var prompt = createEvent('shortlink-input-url-msg', msgs, showCreateShortlinkPrompt);
 
@@ -93,7 +73,7 @@ function createShortlinkPrompt() {
 }
 
 function showCreateShortlinkPrompt() {
-    
+
     //shortlink-input-fields
     document.getElementById("shortlink-input-fields").style.display = ''
     //create-button
@@ -103,7 +83,7 @@ function showCreateShortlinkPrompt() {
     shortlink.value = hash;
     resizable(shortlink, 7.7);
     attachInputChange(shortlink, cleanShortUrlHash);
-    
+
     var destinationUrl = document.getElementById('destination-url');
     resizable(destinationUrl, 7.7);
 }
@@ -114,14 +94,51 @@ function createShortlink() {
     answer.classList.add('answer');
     answer.classList.add('input-choice');
     document.getElementById("shortlink-input-fields").append(answer);
-
     document.getElementById('create-button').style.display = 'none';
+
+    var msgs = ['checking authentication...'];
+    var prompt = createEvent('creating-link-msg', msgs, authenticatePrompt);
+    type(prompt);
+}
+
+function authenticatePrompt() {
+    login(loginCallback);
+}
+
+function loginCallback() {
+    
+    var msgs = ['authenticated...', 'saving to database...'];
+    var prompt = createEvent('creating-link-msg', msgs, save);
+    type(prompt);
+}
+
+function save() {
+    document.getElementById('404').style.display = '';
+    document.getElementById('login').style.display = 'none';
+
     var shortlink = document.getElementById('shortlink');
     var destinationUrl = document.getElementById('destination-url');
-    var msgs = [`creating shortlink [${shortlink.value}] --> [${destinationUrl.value}] `];
-    console.log(msgs[0]);
 
-    var prompt = createEvent('creating-link-msg', msgs, undefined);
+    saveShortlink(shortlink.value, destinationUrl.value, onSaved);
+}
+
+function onSaved(sucess, error) {
+    var msgs = []
+    var prompt = {}
+    var shortlink = document.getElementById('shortlink');
+    var destinationUrl = document.getElementById('destination-url');
+
+    if(sucess) {
+        msgs = ['saved!','you may now navigate to:', `${location.origin}/#${shortlink.value}`];
+    }
+    else {
+
+        msgs = ['err...','something went wrong....', 'see developer console...'];
+        console.log(`Failed to save shortlink [${shortlink.value}] --> [${destinationUrl.value}] to database`);
+        console.log(error);
+    }
+
+    prompt = createEvent('goodbye-msg', msgs, undefined);
     type(prompt);
 }
 
@@ -154,7 +171,7 @@ var delay = 0;
  * END SETTINGS *
  */
 
- var currentEvent = {}
+var currentEvent = {}
 var k = 0;
 var messages = [0];
 
@@ -162,15 +179,13 @@ var vDelay = 1000;
 var hDelay = 30;
 
 function type(typeEvent) {
-    if(typeEvent)
-    {
+    if (typeEvent) {
         currentEvent = typeEvent;
     }
 
-    if(k >= currentEvent.messages.length)
-    {
+    if (k >= currentEvent.messages.length) {
         k = 0;
-        if(currentEvent.action){
+        if (currentEvent.action) {
             currentEvent.action();
         }
         return;
@@ -210,17 +225,16 @@ function type(typeEvent) {
         ele.innerHTML += object[index];
         if (dir === 'v') {
             ele.innerHTML += '<br />';
-        } else 
-        {
+        } else {
             if (index == object.length - 1) {
                 k++;
                 type();
             }
 
-            return; 
+            return;
         }
 
-        
+
     }
     /***   END FUNCTIONS   ***/
     /* Convert obj to character array if string */
@@ -240,5 +254,11 @@ function type(typeEvent) {
                 writeIt(e, o, x, d);
             }, x * dly); /* multiply to keep consistant interval on each loop*/
         })(elmt, newObj, i, direction);
+    }
+}
+
+window.onload = function () {
+    if (hash) {
+        start();
     }
 }
