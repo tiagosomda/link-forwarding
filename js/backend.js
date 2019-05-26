@@ -1,4 +1,5 @@
 var ui = undefined
+var currentUser = undefined;
 init()
 function init() {
     var firebaseConfig = {
@@ -14,72 +15,80 @@ function init() {
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
 
-    firebase.auth().onAuthStateChanged(function(user) {
+    firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
-          // User is signed in.
-          console.log('user is signed in');
+            // User is signed in.
+            currentUser = user;
+            console.log('user is signed in');
         } else {
-          // No user is signed in.
-          console.log('user is NOT signed in');
+            // No user is signed in.
+            console.log('user is NOT signed in');
         }
-      });
-
-    // Initialize the FirebaseUI Widget using Firebase.
-    //firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)l
-    ui = new firebaseui.auth.AuthUI(firebase.auth());
+    });
 }
 
+function currentUserId() {
+    if (currentUser) {
+        return currentUser.uid;
+    }
 
-function login(successCallback) {
-    var user = firebase.auth().currentUser;
+    return null;
+}
 
-    if(user)
-    {
+function login(successCallback, loginCallbackUri) {
+    var user = currentUserId();
+
+    if (user) {
         successCallback();
     }
-    else 
-    {
+    else {
         document.getElementById('404').style.display = 'none';
         document.getElementById('login').style.display = '';
-        
-        var uiConfig = getSignInConfig(successCallback);
+
+        var uiConfig = getSignInConfig(successCallback, loginCallbackUri);
+        ui = new firebaseui.auth.AuthUI(firebase.auth());
         ui.start('#firebaseui-auth-container', uiConfig);
     }
 }
 
 function saveShortlink(shortlink, url, onCompleted) {
-    //var database = firebase.database();
-
-    firebase.database().ref(shortlink+'/').set({
-        hash: shortlink,
-        redirectTo: url
-      }).then(function() {
-        onCompleted(true);
-      })
-      .catch(function(error) {
-          console.log('Synchronization failed');
-          onCompleted(false, error)
-      });
+    var uid = currentUserId();
+    if (uid) {
+        firebase.database().ref(`${shortlink}/`).set({
+            uid: uid,
+            url: url
+        }).then(function () {
+            onCompleted(true);
+        })
+            .catch(function (error) {
+                console.error('Synchronization failed');
+                onCompleted(false, error)
+            });
+    } else {
+        console.error('user is not logged in');
+        onCompleted(false, 'user is not logged in');
+    }
 }
 
-function getHash(shortlink, callback) {
-    firebase.database().ref(shortlink+'/').once('value').then(function(snapshot) {
+function getRedirect(shortlink, callback) {
+    firebase.database().ref(shortlink + '/').once('value').then(function (snapshot) {
         var value = snapshot.val();
         console.log(value);
-        if(callback)
+        if (callback)
             callback(value);
     });
 }
 
-function getSignInConfig(successCallback) {
+function getSignInConfig(successCallback, callbackUri) {
+
     var uiConfig = {
         callbacks: {
             signInSuccessWithAuthResult: function (authResult, redirectUrl) {
                 // User successfully signed in.
                 // Return type determines whether we continue the redirect automatically
                 // or whether we leave that to developer to handle.                
-                successCallback();
-                return false;
+                //successCallback();
+                return true;
             },
             uiShown: function () {
                 // The widget is rendered.
@@ -87,13 +96,15 @@ function getSignInConfig(successCallback) {
                 document.getElementById('loader').style.display = 'none';
             }
         },
+        queryParameterForSignInSuccessUrl: 'signInSuccessUrl',
         // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
-        signInFlow: 'popup',
-        //signInSuccessUrl: loginRedirectionUrl,
+        signInFlow: 'redirect',
+        signInSuccessUrl: callbackUri,
         signInOptions: [
             // Leave the lines as is for the providers you want to offer your users.
             firebase.auth.GoogleAuthProvider.PROVIDER_ID,
         ],
+        //signInSuccessWithAuthResult: callbackUri,
         // // Terms of service url.
         // tosUrl: '<your-tos-url>',
         // // Privacy policy url.

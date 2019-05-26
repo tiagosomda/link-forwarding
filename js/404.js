@@ -1,19 +1,7 @@
-var hash = '';
-var search = ''
-if (location.search) {
-    search = location.search;
-} else if (location.hash) {
-    var hash = location.hash.substring(1);
-}
-
 function start() {
     var msgs = ['404 Error : Not Found', 'shortlink: ', `[#${hash}]`, 'Create it?'];
     var prompt = createEvent('not-found-msg', msgs, showCreatePrompt);
     type(prompt);
-}
-
-function saveOnBackend() {
-    console.log('it has been saved to the backend!');
 }
 
 function resizable(el, factor) {
@@ -102,17 +90,20 @@ function createShortlink() {
 }
 
 function authenticatePrompt() {
-    login(loginCallback);
+    var shortlink = document.getElementById('shortlink');
+    var destinationUrl = document.getElementById('destination-url');
+    var callbackUri = `${location.origin}/404.html?hash=${shortlink.value}&url=${destinationUrl.value}`;
+    login(loginCallback, callbackUri);
 }
 
 function loginCallback() {
-    
     var msgs = ['authenticated...', 'saving to database...'];
     var prompt = createEvent('creating-link-msg', msgs, save);
     type(prompt);
 }
 
 function save() {
+
     document.getElementById('404').style.display = '';
     document.getElementById('login').style.display = 'none';
 
@@ -157,108 +148,26 @@ function createEvent(appendToContainer, msgs, endAction) {
     }
 }
 
-/* 
- * Set direction
- *  - 'h'= horizontal, 'v' = vertical
- */
-var direction = 'h';
-/*
- * Set delay for outputing characters
- *   - 0 is ignored and will use default
- */
-var delay = 0;
-/*
- * END SETTINGS *
- */
 
-var currentEvent = {}
-var k = 0;
-var messages = [0];
-
-var vDelay = 1000;
-var hDelay = 30;
-
-function type(typeEvent) {
-    if (typeEvent) {
-        currentEvent = typeEvent;
-    }
-
-    if (k >= currentEvent.messages.length) {
-        k = 0;
-        if (currentEvent.action) {
-            currentEvent.action();
-        }
-        return;
-    }
-
-    var str = currentEvent.messages[k];
-    /* 
-   *      VARS
-   */
-    /* 
-     * Type of element to create 
-     *   - String representation
-     */
-    var el = 'p';
-    /* 
-     * Set Timeout Interval
-     *   - If delay is number and > 0 use it
-     *   - Defaults: 1s for vert; 150ms for horz
-     */
-    var dly = (typeof delay === 'number' && delay > 0) ? delay : ((direction === 'v') ? vDelay : hDelay);
-    /* If obj is a string then convert to character array */
-    var newObj = [];
-    /* Create element */
-    var elmt = document.createElement(el);
-    /***   END VARS   ***/
-    /*
-     *     FUNCTIONS
-     */
-    /* Split string into character array */
-    function splitStr(s) {
-        s.split('');
-        return s;
-    }
-    /* Write text inside element */
-    function writeIt(ele, object, index, dir) {
-        /* If vertical then add a <br /> */
-        ele.innerHTML += object[index];
-        if (dir === 'v') {
-            ele.innerHTML += '<br />';
-        } else {
-            if (index == object.length - 1) {
-                k++;
-                type();
-            }
-
-            return;
-        }
-
-
-    }
-    /***   END FUNCTIONS   ***/
-    /* Convert obj to character array if string */
-    newObj = str;//(Array.isArray(obj)) ? obj : splitStr(obj);
-    /* Attach class to element */
-    //elmt.className += 'chardelay';
-    /* Attach element to document */
-    var body = document.getElementById(currentEvent.container)
-    body.appendChild(elmt);
-    /* Loop through Array */
-    for (var i = 0; i < newObj.length; i++) {
-        /* Anonymous IIFE passing vars elmt, newObj, i, direction */
-        (function (e, o, x, d) {
-            /* Invoke delay */
-            setTimeout(function () {
-                /* Call write function */
-                writeIt(e, o, x, d);
-            }, x * dly); /* multiply to keep consistant interval on each loop*/
-        })(elmt, newObj, i, direction);
-    }
-}
-
+var hash = undefined;
 window.onload = function () {
-    if (hash) {
+    hash = location.hash ? location.hash.substring(1) : false
+    var search = location.search;
+    console.log("search on url is: " + search);
+    if(search) {
+        var searchParams = new URL(location.href).searchParams;
+        console.log('hash is: ' + searchParams.get('hash'));
+        console.log('url is: ' + searchParams.get('url'));
+
+        var shortlink = document.getElementById('shortlink');
+        var destinationUrl = document.getElementById('destination-url');
+
+        shortlink.value = searchParams.get('hash');
+        destinationUrl.value = searchParams.get('url');
+        loginCallback();
+    }
+    if (hash) 
+    {
         start();
     }
 }
