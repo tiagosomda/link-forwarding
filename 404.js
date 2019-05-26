@@ -77,6 +77,8 @@ function createShortlinkPrompt() {
     document.getElementById("create-shortlink-question").remove();
     var answer = document.createElement('p');
     answer.innerHTML = 'yes'
+    answer.classList.add('answer');
+    answer.classList.add('input-choice');
     document.getElementById("not-found-msg").append(answer);
     console.log("creating shortlink prompt");
 
@@ -85,6 +87,7 @@ function createShortlinkPrompt() {
     var msgs = ['please set the values:']
     var prompt = createEvent('shortlink-input-url-msg', msgs, showCreateShortlinkPrompt);
 
+    document.getElementById('create-button').addEventListener('click', createShortlink);
     document.getElementById("shortlink-input").style.display = ''
     type(prompt);
 }
@@ -93,6 +96,8 @@ function showCreateShortlinkPrompt() {
     
     //shortlink-input-fields
     document.getElementById("shortlink-input-fields").style.display = ''
+    //create-button
+    document.getElementById("create-button").style.display = ''
 
     var shortlink = document.getElementById('shortlink');
     shortlink.value = hash;
@@ -103,8 +108,26 @@ function showCreateShortlinkPrompt() {
     resizable(destinationUrl, 7.7);
 }
 
+function createShortlink() {
+    var answer = document.createElement('p');
+    answer.innerHTML = 'create'
+    answer.classList.add('answer');
+    answer.classList.add('input-choice');
+    document.getElementById("shortlink-input-fields").append(answer);
+
+    document.getElementById('create-button').style.display = 'none';
+    var shortlink = document.getElementById('shortlink');
+    var destinationUrl = document.getElementById('destination-url');
+    var msgs = [`creating shortlink [${shortlink.value}] --> [${destinationUrl.value}] `];
+    console.log(msgs[0]);
+
+    var prompt = createEvent('creating-link-msg', msgs, undefined);
+    type(prompt);
+}
+
 function createGoodByePrompt() {
     var msgs = ['Okay! Good luck!'];
+    document.getElementById("shortlink-input-fields").style.display = ''
     var goodByePrompt = createEvent('goodbye-msg', msgs, undefined);
     type(goodByePrompt);
 }
