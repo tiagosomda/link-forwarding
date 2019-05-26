@@ -1,20 +1,17 @@
-function getForwardKey() {
-    return location.hash ? location.hash.substring(1) : false;
-}
+window.onload = function () {
 
-function forwardUrl(key) {
-    if(links[key] !== undefined) {
-        console.log("forwarding to : " + links[key])
-        location.href = links[key]
-        return true;
+    function getForwardKey() {
+        return location.hash ? location.hash.substring(1) : false;
     }
 
-    return false;
-}
+    function handleValue(value) {
+        if(value) {
+            location.href = value.redirectTo;
+        } else {
+            location.href = "/404.html#"+key
+        }
+    }
 
-var key = getForwardKey();
-if(key === false || forwardUrl(key) === false)
-{
-    console.log("no forward found for ["+key+"]")
-    location.href = "/404.html#"+key
+    var key = getForwardKey();
+    getHash(key, handleValue);
 }

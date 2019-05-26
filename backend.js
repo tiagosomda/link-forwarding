@@ -1,5 +1,5 @@
-var ui = {}
-
+var ui = undefined
+init()
 function init() {
     var firebaseConfig = {
         apiKey: "AIzaSyAQf2DNsZr4bgR_3WNuLFe8aJ5tAZyWQTM",
@@ -14,18 +14,45 @@ function init() {
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
 
+    var test = firebase.auth()
+
+    var user = firebase.auth().currentUser;
+    if(user){
+        console.log('user is signed in')
+    }
+    else {
+        console.log('user is not signed in')
+    }
+
     // Initialize the FirebaseUI Widget using Firebase.
+    //firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)l
     ui = new firebaseui.auth.AuthUI(firebase.auth());
 }
 
 function saveOnBackend(shortlink, url, successCallback) {
-    init();
-    var loginRedirectionUrl = location.origin+ `/?shortlink=${shortlink}&url=${url}`
-    var uiConfig = getSignInConfig(loginRedirectionUrl, shortlink, url, successCallback);
+    var uiConfig = getSignInConfig(location.origin, shortlink, url, successCallback);
     ui.start('#firebaseui-auth-container', uiConfig);
 }
 
-console.log('save-to-database')
+function actuallySave(shortlink, url) {
+    //var database = firebase.database();
+
+    firebase.database().ref(shortlink+'/').set({
+        hash: shortlink,
+        redirectTo: url
+      });
+
+    console.log('actually saved to the database?')
+}
+
+function getHash(shortlink, callback) {
+    firebase.database().ref(shortlink+'/').once('value').then(function(snapshot) {
+        var value = snapshot.val();
+        console.log(value);
+        if(callback)
+            callback(value);
+    });
+}
 
 function getSignInConfig(loginRedirectionUrl, shortlink, url, successCallback) {
     var uiConfig = {
@@ -35,6 +62,7 @@ function getSignInConfig(loginRedirectionUrl, shortlink, url, successCallback) {
                 // Return type determines whether we continue the redirect automatically
                 // or whether we leave that to developer to handle.
                 console.log('save-to-database: ' + `/?shortlink=${shortlink}&url=${url}`);
+                actuallySave(shortlink, url);
                 successCallback();
                 
                 return false;

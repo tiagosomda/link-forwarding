@@ -1,18 +1,9 @@
-console.log("not-found");
 var hash = '';
 var search = ''
 if (location.search) {
     search = location.search;
 } else if (location.hash) {
     var hash = location.hash.substring(1);
-}
-
-window.onload = function () {
-    if (hash) {
-        start();
-    } else {
-        console.log('saving to console: ' + search);
-    }
 }
 
 function start() {
@@ -236,5 +227,15 @@ function type(typeEvent) {
                 writeIt(e, o, x, d);
             }, x * dly); /* multiply to keep consistant interval on each loop*/
         })(elmt, newObj, i, direction);
+    }
+}
+
+window.onload = function () {
+    console.log("what...")
+    if (hash) {
+        console.log("hash-start")
+        start();
+    } else {
+        console.log('saving to console: ' + search);
     }
 }
