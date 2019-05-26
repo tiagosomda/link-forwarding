@@ -1,0 +1,25 @@
+input {
+    text-align: left;
+}
+.input {
+    border: 0;
+    padding: 0;
+    background: transparent;
+
+    background-color: black;
+    font-family: "Courier New", Monospace;
+    color: white;
+    border-bottom: 1px dashed white;
+}
+
+.input:focus,
+.input:active {
+    outline: none;
+}
+
+.input-resize {
+  min-width:10px!important;
+  max-width:99.99%!important;
+  transition: width 0.25s;
+  text-align:center;
+}

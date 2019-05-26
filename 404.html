@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Shortlink Not Found</title>
+
+    <link rel="stylesheet" type="text/css" href="404.css">
+    <link rel="stylesheet" type="text/css" href="404-input.css">
+    <script src="404.js" type="text/javascript"></script>
+
+    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+</head>
+
+<body class="output">
+    <div id="not-found-msg" >
+    </div>
+    <div id="create-shortlink-question" style="display:none">
+        <p><span id="create-yes" class="input-choice">yes</span> | <span id="create-no" class="input-choice">no</span></p>
+    </div>
+    <div id="shortlink-input" style="display:none">
+        <div id="shortlink-input-url-msg"></div>
+        <div id="shortlink-input-fields" style="display:none">
+            <p>$ #<input id="shortlink" class="input" type="text" placeholder="your-short-link" value=""></p>
+            <p>$ <input id="destination-url" class="input" type="text" placeholder="enter your url" value=""></p>
+        </div>
+        <p><span id="create-button" class="input-choice" style="display:none">create</span></p>
+    </div>
+    <div id="creating-link-msg"></div>
+    <div id="goodbye-msg"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.0.4/firebase-auth.js"></script>
+    <script src="backend.js" type="text/javascript"></script>
+</body>
+
+</html>

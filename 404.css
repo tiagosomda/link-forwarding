@@ -1,0 +1,35 @@
+body {
+    background-color: black;
+    font-family: "Courier New", Monospace;
+    color: lime;
+  }
+
+  .output {
+    margin: 1em;
+    padding: 1em;
+    padding-bottom: 0;
+    margin-bottom: 0;
+    line-height: 1.5em;
+  }
+
+  .input-choice {
+      display: inline-block;
+      color:white;
+      border: green 1px;
+      border-style: solid;
+      padding: 5px;
+      min-width: 40px;
+      text-align: center;
+  }
+
+  .input-choice:hover {
+    background-color: green;
+    cursor: pointer;
+  }
+
+  .answer,
+  .answer:hover {
+      background-color:white;
+      color:green;
+      cursor: none;
+  }
