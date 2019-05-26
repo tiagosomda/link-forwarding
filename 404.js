@@ -1,16 +1,16 @@
 console.log("not-found");
 var hash = '';
-if(location.hash) {
+if (location.hash) {
     var hash = location.hash.substring(1);
 }
 
-function resizable (el, factor) {
+function resizable(el, factor) {
     var int = Number(factor) || 7.7;
     function resize() {
-        if(el.value) {
-            el.style.width = ((el.value.length+1) * int) + 'px'
+        if (el.value) {
+            el.style.width = ((el.value.length + 1) * int) + 'px'
         } else {
-            el.style.width = ((el.placeholder.length+1) * int) + 'px'
+            el.style.width = ((el.placeholder.length + 1) * int) + 'px'
         }
     }
 
@@ -20,7 +20,7 @@ function resizable (el, factor) {
 
 function attachInputChange(el, action) {
     var e = 'keyup,keypress,focus,blur,change'.split(',');
-    for (var i in e) el.addEventListener(e[i],action,false);
+    for (var i in e) el.addEventListener(e[i], action, false);
 }
 
 function displayCreateLink() {
@@ -30,11 +30,11 @@ function displayCreateLink() {
 
 function cleanShortUrlHash(el) {
     var dirty = el.target.value;
-    if(dirty)
-    {
+    if (dirty) {
         el.target.value = dirty.replace(' ', '-').replace('#', '');
     }
 }
+
 
 window.onload = function () {
     document.getElementById('short-link-not-found').text = "#"+hash;
@@ -51,4 +51,171 @@ window.onload = function () {
     document.getElementById('yes').addEventListener('click', displayCreateLink);
 
     attachInputChange(newHash, cleanShortUrlHash);
+}
+
+
+
+window.onload = function () {
+    start();
+}
+
+function start() {
+    var msgs = ['404 Error : Not Found', 'shortlink: ', `[#${hash}]`, 'Create it?'];
+    var prompt = createEvent('not-found-msg', msgs, showCreatePrompt);
+    type(prompt);
+}
+
+function showCreatePrompt() {
+    document.getElementById('create-yes').addEventListener('click', createShortlinkPrompt);
+    document.getElementById('create-no').addEventListener('click', createGoodByePrompt);
+    document.getElementById("create-shortlink-question").style.display = ''
+}
+
+function createShortlinkPrompt() {
+    
+    // writing 'yes' answer
+    document.getElementById("create-shortlink-question").remove();
+    var answer = document.createElement('p');
+    answer.innerHTML = 'yes'
+    document.getElementById("not-found-msg").append(answer);
+    console.log("creating shortlink prompt");
+
+    // creating prompt
+    //shortlink-input-url-msg
+    var msgs = ['please set the values:']
+    var prompt = createEvent('shortlink-input-url-msg', msgs, showCreateShortlinkPrompt);
+
+    document.getElementById("shortlink-input").style.display = ''
+    type(prompt);
+}
+
+function showCreateShortlinkPrompt() {
+    
+    //shortlink-input-fields
+    document.getElementById("shortlink-input-fields").style.display = ''
+
+    var shortlink = document.getElementById('shortlink');
+    shortlink.value = hash;
+    resizable(shortlink, 7.7);
+    attachInputChange(shortlink, cleanShortUrlHash);
+    
+    var destinationUrl = document.getElementById('destination-url');
+    resizable(destinationUrl, 7.7);
+}
+
+function createGoodByePrompt() {
+    var msgs = ['Okay! Good luck!'];
+    var goodByePrompt = createEvent('goodbye-msg', msgs, undefined);
+    type(goodByePrompt);
+}
+
+function createEvent(appendToContainer, msgs, endAction) {
+    return {
+        container: appendToContainer,
+        messages: msgs,
+        action: endAction
+    }
+}
+
+/* 
+ * Set direction
+ *  - 'h'= horizontal, 'v' = vertical
+ */
+var direction = 'h';
+/*
+ * Set delay for outputing characters
+ *   - 0 is ignored and will use default
+ */
+var delay = 0;
+/*
+ * END SETTINGS *
+ */
+
+ var currentEvent = {}
+var k = 0;
+var messages = [0];
+
+var vDelay = 1000;
+var hDelay = 30;
+
+function type(typeEvent) {
+    if(typeEvent)
+    {
+        currentEvent = typeEvent;
+    }
+
+    if(k >= currentEvent.messages.length)
+    {
+        k = 0;
+        if(currentEvent.action){
+            currentEvent.action();
+        }
+        return;
+    }
+
+    var str = currentEvent.messages[k];
+    /* 
+   *      VARS
+   */
+    /* 
+     * Type of element to create 
+     *   - String representation
+     */
+    var el = 'p';
+    /* 
+     * Set Timeout Interval
+     *   - If delay is number and > 0 use it
+     *   - Defaults: 1s for vert; 150ms for horz
+     */
+    var dly = (typeof delay === 'number' && delay > 0) ? delay : ((direction === 'v') ? vDelay : hDelay);
+    /* If obj is a string then convert to character array */
+    var newObj = [];
+    /* Create element */
+    var elmt = document.createElement(el);
+    /***   END VARS   ***/
+    /*
+     *     FUNCTIONS
+     */
+    /* Split string into character array */
+    function splitStr(s) {
+        s.split('');
+        return s;
+    }
+    /* Write text inside element */
+    function writeIt(ele, object, index, dir) {
+        /* If vertical then add a <br /> */
+        ele.innerHTML += object[index];
+        if (dir === 'v') {
+            ele.innerHTML += '<br />';
+        } else 
+        {
+            if (index == object.length - 1) {
+                k++;
+                type();
+            }
+
+            return; 
+        }
+
+        
+    }
+    /***   END FUNCTIONS   ***/
+    /* Convert obj to character array if string */
+    newObj = str;//(Array.isArray(obj)) ? obj : splitStr(obj);
+    /* Attach class to element */
+    //elmt.className += 'chardelay';
+    /* Attach element to document */
+    var body = document.getElementById(currentEvent.container)
+    body.appendChild(elmt);
+    /* Loop through Array */
+    for (var i = 0; i < newObj.length; i++) {
+        /* Anonymous IIFE passing vars elmt, newObj, i, direction */
+        (function (e, o, x, d) {
+            /* Invoke delay */
+            setTimeout(function () {
+                /* Call write function */
+                writeIt(e, o, x, d);
+            }, x * dly); /* multiply to keep consistant interval on each loop*/
+        })(elmt, newObj, i, direction);
+    }
 }

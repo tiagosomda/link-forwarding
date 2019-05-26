@@ -2,21 +2,17 @@ input {
     text-align: left;
 }
 .input {
-    
     border: 0;
     padding: 0;
     background: transparent;
-    font-family: Inconsolata, Helvetica, sans-serif;
-    font-size: 24px;
-    text-transform: uppercase;
+
+    background-color: black;
+    font-family: "Courier New", Monospace;
     color: white;
-    caret-color: white;
+    border-bottom: 1px dashed white;
 }
 
-.input:focus {
-    outline: none;
-}
-
+.input:focus,
 .input:active {
     outline: none;
 }
