@@ -1,7 +1,28 @@
 console.log("not-found");
 var hash = '';
-if (location.hash) {
+var search = ''
+if (location.search) {
+    search = location.search;
+} else if (location.hash) {
     var hash = location.hash.substring(1);
+}
+
+window.onload = function () {
+    if (hash) {
+        start();
+    } else {
+        console.log('saving to console: ' + search);
+    }
+}
+
+function start() {
+    var msgs = ['404 Error : Not Found', 'shortlink: ', `[#${hash}]`, 'Create it?'];
+    var prompt = createEvent('not-found-msg', msgs, showCreatePrompt);
+    type(prompt);
+}
+
+function savedToBacked() {
+    console.log('it has been saved to the backend!');
 }
 
 function resizable(el, factor) {
@@ -35,36 +56,6 @@ function cleanShortUrlHash(el) {
     }
 }
 
-
-window.onload = function () {
-    document.getElementById('short-link-not-found').text = "#"+hash;
-    var originUrl = document.getElementById('origin-url')
-    originUrl.textContent = location.origin;
-    var newLink = document.getElementById('new-link');
-    var newHash = document.getElementById('new-hash');
-
-    newHash.value = hash;
-
-    resizable(newHash, 12);
-    resizable(newLink, 12);
-
-    document.getElementById('yes').addEventListener('click', displayCreateLink);
-
-    attachInputChange(newHash, cleanShortUrlHash);
-}
-
-
-
-window.onload = function () {
-    start();
-}
-
-function start() {
-    var msgs = ['404 Error : Not Found', 'shortlink: ', `[#${hash}]`, 'Create it?'];
-    var prompt = createEvent('not-found-msg', msgs, showCreatePrompt);
-    type(prompt);
-}
-
 function showCreatePrompt() {
     document.getElementById('create-yes').addEventListener('click', createShortlinkPrompt);
     document.getElementById('create-no').addEventListener('click', createGoodByePrompt);
@@ -72,7 +63,7 @@ function showCreatePrompt() {
 }
 
 function createShortlinkPrompt() {
-    
+
     // writing 'yes' answer
     document.getElementById("create-shortlink-question").remove();
     var answer = document.createElement('p');
@@ -93,7 +84,7 @@ function createShortlinkPrompt() {
 }
 
 function showCreateShortlinkPrompt() {
-    
+
     //shortlink-input-fields
     document.getElementById("shortlink-input-fields").style.display = ''
     //create-button
@@ -103,7 +94,7 @@ function showCreateShortlinkPrompt() {
     shortlink.value = hash;
     resizable(shortlink, 7.7);
     attachInputChange(shortlink, cleanShortUrlHash);
-    
+
     var destinationUrl = document.getElementById('destination-url');
     resizable(destinationUrl, 7.7);
 }
@@ -121,8 +112,16 @@ function createShortlink() {
     var msgs = [`creating shortlink [${shortlink.value}] --> [${destinationUrl.value}] `];
     console.log(msgs[0]);
 
-    var prompt = createEvent('creating-link-msg', msgs, undefined);
+    var prompt = createEvent('creating-link-msg', msgs, saveShortlink);
     type(prompt);
+
+    saveOnBackend(shortlink.value, destinationUrl.value, savedToBacked);
+}
+
+function saveShortlink() {
+    //404
+    document.getElementById('404').style.display = 'none';
+    document.getElementById('login').style.display = '';
 }
 
 function createGoodByePrompt() {
@@ -154,7 +153,7 @@ var delay = 0;
  * END SETTINGS *
  */
 
- var currentEvent = {}
+var currentEvent = {}
 var k = 0;
 var messages = [0];
 
@@ -162,15 +161,13 @@ var vDelay = 1000;
 var hDelay = 30;
 
 function type(typeEvent) {
-    if(typeEvent)
-    {
+    if (typeEvent) {
         currentEvent = typeEvent;
     }
 
-    if(k >= currentEvent.messages.length)
-    {
+    if (k >= currentEvent.messages.length) {
         k = 0;
-        if(currentEvent.action){
+        if (currentEvent.action) {
             currentEvent.action();
         }
         return;
@@ -210,17 +207,16 @@ function type(typeEvent) {
         ele.innerHTML += object[index];
         if (dir === 'v') {
             ele.innerHTML += '<br />';
-        } else 
-        {
+        } else {
             if (index == object.length - 1) {
                 k++;
                 type();
             }
 
-            return; 
+            return;
         }
 
-        
+
     }
     /***   END FUNCTIONS   ***/
     /* Convert obj to character array if string */

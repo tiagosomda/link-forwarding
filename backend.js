@@ -1,5 +1,6 @@
 var ui = {}
-window.onload = function () {
+
+function init() {
     var firebaseConfig = {
         apiKey: "AIzaSyAQf2DNsZr4bgR_3WNuLFe8aJ5tAZyWQTM",
         authDomain: "tiago-redirect-url.firebaseapp.com",
@@ -15,24 +16,28 @@ window.onload = function () {
 
     // Initialize the FirebaseUI Widget using Firebase.
     ui = new firebaseui.auth.AuthUI(firebase.auth());
-
-    saveShortlink('test','test2')
-
 }
 
-function saveShortlink(shortlink, url) {
-    var uiConfig = getSignInConfig();
+function saveOnBackend(shortlink, url, successCallback) {
+    init();
+    var loginRedirectionUrl = location.origin+ `/?shortlink=${shortlink}&url=${url}`
+    var uiConfig = getSignInConfig(loginRedirectionUrl, shortlink, url, successCallback);
     ui.start('#firebaseui-auth-container', uiConfig);
 }
 
-function getSignInConfig() {
+console.log('save-to-database')
+
+function getSignInConfig(loginRedirectionUrl, shortlink, url, successCallback) {
     var uiConfig = {
         callbacks: {
             signInSuccessWithAuthResult: function (authResult, redirectUrl) {
                 // User successfully signed in.
                 // Return type determines whether we continue the redirect automatically
                 // or whether we leave that to developer to handle.
-                return true;
+                console.log('save-to-database: ' + `/?shortlink=${shortlink}&url=${url}`);
+                successCallback();
+                
+                return false;
             },
             uiShown: function () {
                 // The widget is rendered.
@@ -42,7 +47,7 @@ function getSignInConfig() {
         },
         // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
         signInFlow: 'popup',
-        signInSuccessUrl: 'http://localhost:8080/login.html',
+        signInSuccessUrl: loginRedirectionUrl,
         signInOptions: [
             // Leave the lines as is for the providers you want to offer your users.
             firebase.auth.GoogleAuthProvider.PROVIDER_ID,
