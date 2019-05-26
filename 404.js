@@ -12,7 +12,7 @@ function start() {
     type(prompt);
 }
 
-function savedToBacked() {
+function saveOnBackend() {
     console.log('it has been saved to the backend!');
 }
 
@@ -101,16 +101,10 @@ function createShortlink() {
     var shortlink = document.getElementById('shortlink');
     var destinationUrl = document.getElementById('destination-url');
     var msgs = [`creating shortlink [${shortlink.value}] --> [${destinationUrl.value}] `];
-    console.log(msgs[0]);
-
-    var prompt = createEvent('creating-link-msg', msgs, saveShortlink);
+    var prompt = createEvent('creating-link-msg', msgs, undefined);
     type(prompt);
 
-    saveOnBackend(shortlink.value, destinationUrl.value, savedToBacked);
-}
-
-function saveShortlink() {
-    //404
+    login(savingPrompt);
     document.getElementById('404').style.display = 'none';
     document.getElementById('login').style.display = '';
 }
@@ -122,6 +116,20 @@ function createGoodByePrompt() {
     type(goodByePrompt);
 }
 
+function savingPrompt() {
+    
+    var msgs = ['processing...'];
+    var prompt = createEvent('creating-link-msg', msgs, undefined);
+    type(prompt);
+
+    document.getElementById('404').style.display = '';
+    document.getElementById('login').style.display = 'none';
+
+    var shortlink = document.getElementById('shortlink');
+    var destinationUrl = document.getElementById('destination-url');
+
+    saveShortlink(shortlink.value, destinationUrl.value);
+}
 function createEvent(appendToContainer, msgs, endAction) {
     return {
         container: appendToContainer,

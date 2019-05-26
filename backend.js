@@ -29,12 +29,12 @@ function init() {
     ui = new firebaseui.auth.AuthUI(firebase.auth());
 }
 
-function saveOnBackend(shortlink, url, successCallback) {
-    var uiConfig = getSignInConfig(location.origin, shortlink, url, successCallback);
+function login(successCallback) {
+    var uiConfig = getSignInConfig(successCallback);
     ui.start('#firebaseui-auth-container', uiConfig);
 }
 
-function actuallySave(shortlink, url) {
+function saveShortlink(shortlink, url) {
     //var database = firebase.database();
 
     firebase.database().ref(shortlink+'/').set({
@@ -54,17 +54,14 @@ function getHash(shortlink, callback) {
     });
 }
 
-function getSignInConfig(loginRedirectionUrl, shortlink, url, successCallback) {
+function getSignInConfig(successCallback) {
     var uiConfig = {
         callbacks: {
             signInSuccessWithAuthResult: function (authResult, redirectUrl) {
                 // User successfully signed in.
                 // Return type determines whether we continue the redirect automatically
-                // or whether we leave that to developer to handle.
-                console.log('save-to-database: ' + `/?shortlink=${shortlink}&url=${url}`);
-                actuallySave(shortlink, url);
+                // or whether we leave that to developer to handle.                
                 successCallback();
-                
                 return false;
             },
             uiShown: function () {
@@ -75,11 +72,10 @@ function getSignInConfig(loginRedirectionUrl, shortlink, url, successCallback) {
         },
         // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
         signInFlow: 'popup',
-        signInSuccessUrl: loginRedirectionUrl,
+        //signInSuccessUrl: loginRedirectionUrl,
         signInOptions: [
             // Leave the lines as is for the providers you want to offer your users.
             firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-
         ],
         // // Terms of service url.
         // tosUrl: '<your-tos-url>',
